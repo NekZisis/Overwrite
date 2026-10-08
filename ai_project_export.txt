@@ -1,0 +1,240 @@
+============================================================
+--- PROJECT DIRECTORY TREE ---
+============================================================
+
+Learning Canvas/
+├── scripts
+│   ├── game.js
+│   ├── InputHandler.js
+│   ├── main.js
+│   └── Player.js
+├── styles
+│   └── style.css
+└── index.html
+
+
+============================================================
+--- FILE CONTENTS ---
+============================================================
+
+
+============================================================
+--- FILE: .\index.html ---
+============================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Canvas</title>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <div id="mobileBlocker">This game requires a desktop</div>
+
+    <div id="game-container">
+        <canvas id="bgCanvas"></canvas>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script type="module" src="scripts/InputHandler.js"></script>
+    <script type="module" src="scripts/Game.js"></script>
+    <script type="module" src="scripts/Player.js"></script>
+    <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
+
+
+============================================================
+--- FILE: .\scripts\game.js ---
+============================================================
+
+import { Player } from './Player.js';
+
+export class Game {
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+    this.player = new Player(this.width, this.height);
+  }
+
+  update(deltaTime) {
+    this.player.update(deltaTime);
+  }
+
+  render(ctx) {
+    // Clear dynamic foreground canvas
+    ctx.clearRect(0, 0, this.width, this.height);
+
+    // Render entities
+    this.player.draw(ctx);
+  }
+}
+
+
+============================================================
+--- FILE: .\scripts\InputHandler.js ---
+============================================================
+
+
+
+
+============================================================
+--- FILE: .\scripts\main.js ---
+============================================================
+
+import { Game } from './game.js';
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const game = new Game(1980, 1024);
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let lastTime = 0;
+
+function gameLoop(timeStamp) {
+    
+    const deltaTime = (timeStamp - lastTime) / 1000;
+    lastTime = timeStamp;
+
+    // clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Update physics/positions (passing deltaTime)
+  
+    game.render(ctx); 
+    game.update(deltaTime);
+
+    requestAnimationFrame(gameLoop);
+}
+
+function isMobileDevice() {
+    // Checks for touch capabilities and screen size, meaning phone device
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth < 768;
+    return hasTouch && isSmallScreen;
+}
+
+if (isMobileDevice()) {
+    document.getElementById('mobile-blocker').style.display = 'flex';
+} else {
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+
+============================================================
+--- FILE: .\scripts\Player.js ---
+============================================================
+
+export class Player {
+  constructor(gameWidth, gameHeight) {
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight;
+
+    // Dimensions
+    this.width = 30;
+    this.height = 50;
+
+    // Spawn position (e.g. bottom-center)
+    this.x = this.gameWidth / 2 - this.width / 2 ;
+    this.y = this.gameHeight - this.height - 500; // 100px above bottom floor for testing fall
+
+    // Velocity vectors (pixels per second)
+    this.vx = 0;
+    this.vy = 0;
+
+    // Physics constants
+    this.gravity = 1500; // pixels / second^2
+  }
+
+  update(deltaTime) {
+    // Apply gravity to vertical velocity
+    this.vy += this.gravity * deltaTime;
+
+    // Update positions based on velocity and deltaTime
+    this.x += this.vx * deltaTime;
+    this.y += this.vy * deltaTime;
+
+    const floorLevel = this.gameHeight;
+
+    if (this.y + this.height >= floorLevel) {
+        this.y = floorLevel - this.height; // Snap to ground
+        this.vy = 0;                       // Stop falling
+    }
+  }
+
+  draw(ctx) {
+    // Render player bounding box
+    ctx.fillStyle = 'white';
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+}
+
+
+============================================================
+--- FILE: .\styles\style.css ---
+============================================================
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1a1a1a;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+#game-container {
+  position: relative;
+
+  aspect-ratio: 4/3; 
+
+  width: 100dvw;
+  max-width: 1280px;
+  max-height: 100dvh;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: block;
+  background-color: rgb(2, 17, 3);
+
+  width: 100%;
+  height: 100%;
+
+  border: 10px solid black;
+}
+
+#mobileBlocker {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 3rem;
+    color: white;
+    position: absolute;
+    z-index: 100;
+    background-color: black;
+    width: 100dvw;
+    height: 100dvh;
+    display: none;
+}
+

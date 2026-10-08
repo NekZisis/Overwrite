@@ -1,14 +1,16 @@
 import { Player } from './Player.js';
+import { InputHandler } from './InputHandler.js';
 
 export class Game {
   constructor(width, height) {
     this.width = width;
     this.height = height;
+    this.input = new InputHandler();
     this.player = new Player(this.width, this.height);
   }
 
   update(deltaTime) {
-    this.player.update(deltaTime);
+    this.player.update(deltaTime, this.input);
   }
 
   render(ctx) {
