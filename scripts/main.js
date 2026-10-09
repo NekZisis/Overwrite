@@ -1,18 +1,21 @@
-import { Game } from './Game.js';
+import { Game } from './game.js';
+
+const virtual_width = 1920;
+const virtual_height = 1080;
 
 // static/background (bg) canvas
 const bgCanvas = document.getElementById('bgCanvas');
 const bgCTX = bgCanvas.getContext('2d');
-bgCanvas.width = 1920;
-bgCanvas.height = 1080;
+bgCanvas.width = virtual_width;
+bgCanvas.height = virtual_height;
 
 // dynamic canvas
 const gameCanvas = document.getElementById('gameCanvas');
 const gameCTX = gameCanvas.getContext('2d');
-gameCanvas.width = 1920;
-gameCanvas.height = 1080;
+gameCanvas.width = virtual_width;
+gameCanvas.height = virtual_height;
 
-// Initiate game
+// initiate game
 const game = new Game(gameCanvas.width, gameCanvas.height);
 // render background once
 game.renderBackground(bgCTX);
@@ -23,7 +26,7 @@ function gameLoop(timeStamp) {
     lastTime = timeStamp;
 
     // game loop
-    game.update(deltaTime); // update state
+    game.update(deltaTime); // update dynamic state
     game.render(gameCTX);  // render the new frame
     requestAnimationFrame(gameLoop); // continue
 }

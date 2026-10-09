@@ -1,7 +1,8 @@
 export class Player {
-    constructor(gameWidth, gameHeight) {
+    constructor(gameWidth, gameHeight, objects) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
+        this.objects = objects;
 
         // player dimensions (hitbox)
         this.width = 20;
@@ -20,12 +21,12 @@ export class Player {
         this.jumpForce = -550;   // upward jump speed (px/s)
         this.downForce = 400;   //  downward movement speed (px/s)
         this.gravity = 1500;     // acceleration due to gravity (px/s^2)
-        this.isOnGround = true;
+        this.isOnGround = false;
         this.facing = "right";
     }
 
     update(deltaTime, input) {
-        // 1. Horizontal Input Handling
+        // Horizontal Input Handling
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
 
@@ -39,7 +40,7 @@ export class Player {
           this.vx = 0;
         }
 
-        // 2. Vertical / Jump Input Handling
+        // Vertical / Jump Input Handling
         const jumpPressed = input.isPressed('KeyW');
 
         if (jumpPressed && this.isOnGround) {
@@ -47,25 +48,32 @@ export class Player {
           this.isOnGround = false;
         }
 
-        // 2.5 Vertical / Downwards Input Handling
+        // Vertical / Downwards Input Handling
         const downPressed = input.isPressed('KeyS');
 
         if (downPressed && !this.isOnGround) {
             this.vy = this.downForce;
         }
 
-        // 3. Physics Integration
+        // Physics Integration
         this.vy += this.gravity * deltaTime;
         this.x += this.vx * deltaTime;
         this.y += this.vy * deltaTime;
 
-        // 4. Horizontal Screen Boundaries
+        // Horizontal Screen Boundaries
         if (this.x < 20) this.x = 20;
         if (this.x + this.width > this.gameWidth - 20) {
           this.x = this.gameWidth - this.width - 20;
         }
 
-        // 5. Floor Collision & Ground Snap
+        // Dash 
+        const spacePressed = input.isPressed('Space');
+
+        if (spacePressed) {
+            // implement dash
+        }
+
+        // Floor Collision & Ground Snap
         const floorLevel = this.gameHeight - 20;
 
         if (this.y + this.height >= floorLevel) {
@@ -73,15 +81,15 @@ export class Player {
           this.vy = 0;
           this.isOnGround = true;
         }
+        
 
-        //6. Dash 
-        const spacePressed = input.isPressed('Space');
-
-        if (spacePressed) {
-            // implement dash
-        }
     }
 
+    enableCollisions() {
+      
+    }
+
+    // draw player model at current position (white rectangle for now)
     draw(ctx) {
         ctx.fillStyle = 'white';
         ctx.fillRect(this.x, this.y, this.width, this.height);
