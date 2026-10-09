@@ -4,7 +4,8 @@
 
 Learning Canvas/
 ├── scripts
-│   ├── game.js
+│   ├── Background.js
+│   ├── Game.js
 │   ├── InputHandler.js
 │   ├── main.js
 │   └── Player.js
@@ -31,45 +32,62 @@ Learning Canvas/
   <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <div id="mobileBlocker">This game requires a desktop</div>
+    <div id="mobile-blocker">This game requires a desktop</div>
 
     <div id="game-container">
         <canvas id="bgCanvas"></canvas>
         <canvas id="gameCanvas"></canvas>
     </div>
 
-    <script type="module" src="scripts/InputHandler.js"></script>
-    <script type="module" src="scripts/Game.js"></script>
-    <script type="module" src="scripts/Player.js"></script>
     <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
 
 
 ============================================================
---- FILE: .\scripts\game.js ---
+--- FILE: .\scripts\Background.js ---
+============================================================
+
+export class Background {
+    constructor(bgWidth, bgHeight) {
+        this.bgWidth = bgWidth;
+        this.bgHeight = bgHeight;
+    }
+
+    render() {}
+    draw(ctx) {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(10, 10, 0, 0);
+    }
+}
+
+
+============================================================
+--- FILE: .\scripts\Game.js ---
 ============================================================
 
 import { Player } from './Player.js';
+import { InputHandler } from './InputHandler.js';
 
 export class Game {
-  constructor(width, height) {
-    this.width = width;
-    this.height = height;
-    this.player = new Player(this.width, this.height);
-  }
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.input = new InputHandler();
+        this.player = new Player(this.width, this.height);
+    }
 
-  update(deltaTime) {
-    this.player.update(deltaTime);
-  }
+    update(deltaTime) {
+        this.player.update(deltaTime, this.input);
+    }
 
-  render(ctx) {
-    // Clear dynamic foreground canvas
-    ctx.clearRect(0, 0, this.width, this.height);
+    render(ctx) {
+        // clear dynamic canvas
+        ctx.clearRect(0, 0, this.width, this.height);
 
-    // Render entities
-    this.player.draw(ctx);
-  }
+        // render entities (just the player for now)
+        this.player.draw(ctx);
+    }
 }
 
 
@@ -77,56 +95,77 @@ export class Game {
 --- FILE: .\scripts\InputHandler.js ---
 ============================================================
 
+export class InputHandler {
+    constructor() {
+        this.keys = new Set();
 
+        // KEYBOARD
+
+        window.addEventListener('keydown', (e) => {
+        // Prevent browser viewport scrolling on navigation keys
+            if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                e.preventDefault();
+            }
+            this.keys.add(e.code);
+        });
+
+        window.addEventListener('keyup', (e) => {
+        this.keys.delete(e.code);
+        });
+
+    }
+
+    isPressed(code) {
+        return this.keys.has(code);
+    }
+}
 
 
 ============================================================
 --- FILE: .\scripts\main.js ---
 ============================================================
 
-import { Game } from './game.js';
+import { Game } from './Game.js';
+import {Background} from './Background.js';
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+// static/background (bg) canvas
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCTX = bgCanvas.getContext('2d');
+bgCanvas.width = 1980;
+bgCanvas.height = 1024;
+const background = new Background(bgCanvas.width, bgCanvas.height);
 
-const game = new Game(1980, 1024);
+background.render(bgCTX);
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+// dynamic canvas
+const gameCanvas = document.getElementById('gameCanvas');
+const gameCTX = gameCanvas.getContext('2d');
+gameCanvas.width = 1980;
+gameCanvas.height = 1024;
+const game = new Game(gameCanvas.width, gameCanvas.height);
 
-let lastTime = 0;
-
+// 
+let lastTime = 0; // initialize the deltaTime calculator
 function gameLoop(timeStamp) {
-    
     const deltaTime = (timeStamp - lastTime) / 1000;
     lastTime = timeStamp;
 
-    // clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 2. Update physics/positions (passing deltaTime)
-  
-    game.render(ctx); 
-    game.update(deltaTime);
-
-    requestAnimationFrame(gameLoop);
+    // game loop
+    game.update(deltaTime); // update state
+    game.render(gameCTX);  // render the new frame
+    requestAnimationFrame(gameLoop); // continue
 }
 
+// block out all mobile users
 function isMobileDevice() {
-    // Checks for touch capabilities and screen size, meaning phone device
     const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isSmallScreen = window.innerWidth < 768;
     return hasTouch && isSmallScreen;
 }
-
 if (isMobileDevice()) {
     document.getElementById('mobile-blocker').style.display = 'flex';
 } else {
-
+    // starts game loop if not a mobile user
     requestAnimationFrame(gameLoop);
 }
 
@@ -137,47 +176,94 @@ if (isMobileDevice()) {
 ============================================================
 
 export class Player {
-  constructor(gameWidth, gameHeight) {
-    this.gameWidth = gameWidth;
-    this.gameHeight = gameHeight;
+    constructor(gameWidth, gameHeight) {
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
 
-    // Dimensions
-    this.width = 30;
-    this.height = 50;
+        // player dimensions (hitbox)
+        this.width = 30;
+        this.height = 50;
 
-    // Spawn position (e.g. bottom-center)
-    this.x = this.gameWidth / 2 - this.width / 2 ;
-    this.y = this.gameHeight - this.height - 500; // 100px above bottom floor for testing fall
+        // spawn position (bottom-center for now)
+        this.x = this.gameWidth / 2 - this.width / 2;
+        this.y = this.gameHeight - this.height;
 
-    // Velocity vectors (pixels per second)
-    this.vx = 0;
-    this.vy = 0;
+        // velocity vectors (px/s)
+        this.vx = 0;
+        this.vy = 0;
 
-    // Physics constants
-    this.gravity = 1500; // pixels / second^2
-  }
-
-  update(deltaTime) {
-    // Apply gravity to vertical velocity
-    this.vy += this.gravity * deltaTime;
-
-    // Update positions based on velocity and deltaTime
-    this.x += this.vx * deltaTime;
-    this.y += this.vy * deltaTime;
-
-    const floorLevel = this.gameHeight;
-
-    if (this.y + this.height >= floorLevel) {
-        this.y = floorLevel - this.height; // Snap to ground
-        this.vy = 0;                       // Stop falling
+        // physics and control constants
+        this.speed = 700;        // horizontal movement speed (px/s)
+        this.jumpForce = -750;   // upward jump speed (px/s)
+        this.downForce = 650;   //  downward movement speed (px/s)
+        this.gravity = 1500;     // acceleration due to gravity (px/s^2)
+        this.isOnGround = true;
+        this.isOnAir = false;
+        this.facing = "right";
     }
-  }
 
-  draw(ctx) {
-    // Render player bounding box
-    ctx.fillStyle = 'white';
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-  }
+    update(deltaTime, input) {
+        // 1. Horizontal Input Handling
+        const leftPressed = input.isPressed('KeyA');
+        const rightPressed = input.isPressed('KeyD');
+
+        if (leftPressed && !rightPressed) {
+          this.vx = -this.speed;
+          this.facing = "left";
+        } else if (rightPressed && !leftPressed) {
+          this.vx = this.speed;
+          this.facing = "right";
+        } else {
+          this.vx = 0;
+        }
+
+        // 2. Vertical / Jump Input Handling
+        const jumpPressed = input.isPressed('KeyW');
+
+        if (jumpPressed && this.isOnGround) {
+          this.vy = this.jumpForce;
+          this.isOnGround = false;
+        }
+
+        // 2.5 Vertical / Downwards Input Handling
+        const downPressed = input.isPressed('KeyS');
+
+        if (downPressed && !this.isOnGround) {
+            this.vy = this.downForce;
+        }
+
+        // 3. Physics Integration
+        this.vy += this.gravity * deltaTime;
+        this.x += this.vx * deltaTime;
+        this.y += this.vy * deltaTime;
+
+        // 4. Horizontal Screen Boundaries
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.width > this.gameWidth) {
+          this.x = this.gameWidth - this.width;
+        }
+
+        // 5. Floor Collision & Ground Snap
+        const floorLevel = this.gameHeight;
+
+        if (this.y + this.height >= floorLevel) {
+          this.y = floorLevel - this.height;
+          this.vy = 0;
+          this.isOnGround = true;
+        }
+
+        //6. Dash 
+        const spacePressed = input.isPressed('Space');
+
+        if (spacePressed) {
+            
+        }
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
 }
 
 
@@ -218,23 +304,31 @@ canvas {
   left: 0;
 
   display: block;
-  background-color: rgb(2, 17, 3);
+  background-color: white;
 
   width: 100%;
   height: 100%;
-
-  border: 10px solid black;
 }
 
-#mobileBlocker {
+#bgCanvas {
+  z-index: 1;
+}
+
+#gameCanvas {
+  z-index: 2;
+}
+
+#mobile-blocker {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 3rem;
     color: white;
     position: absolute;
-    z-index: 100;
+    z-index: 3;
     background-color: black;
     width: 100dvw;
     height: 100dvh;
     display: none;
 }
+
+
 
