@@ -3,8 +3,8 @@ import { Game } from './Game.js';
 // static/background (bg) canvas
 const bgCanvas = document.getElementById('bgCanvas');
 const bgCTX = bgCanvas.getContext('2d');
-bgCanvas.width = 1980;
-bgCanvas.height = 1024;
+bgCanvas.width = 1920;
+bgCanvas.height = 1080;
 
 // dynamic canvas
 const gameCanvas = document.getElementById('gameCanvas');

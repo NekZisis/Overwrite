@@ -22,7 +22,14 @@ export class Background {
 
         // PLATFORMS
 
-        ctx.fillStyle = '#FFE0B5';
+        const platforms = [
+            [100, 100, 100, 100], 
+            [200, 200, 200, 200]
+        ];
+
+        platforms.forEach((platform) => {
+            ctx.fillRect(platform[0], platform[1], platform[2], platform[3]);
+        })
 
     }
 }
