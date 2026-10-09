@@ -24,7 +24,9 @@ export class Player {
         this.isOnGround = false;
         this.facing = "right";
         this.dashing = false;
-        this.coyoteTimer = 100 // milliseconds
+
+        this.coyoteTime = 0.05 // 100 ms
+        this.coyoteTimer = 0;
     }
 
     update(deltaTime, input) {
@@ -44,10 +46,16 @@ export class Player {
 
         // Vertical / Jump Input Handling
         const jumpPressed = input.isPressed('KeyW');
+        if (this.isOnGround) {
+            this.coyoteTimer = this.coyoteTime;
+        } else {
+            this.coyoteTimer = Math.max(0, this.coyoteTimer - deltaTime);
+        }
 
-        if (jumpPressed && this.isOnGround) {
+        if (jumpPressed && this.coyoteTimer > 0) {
             this.vy = this.jumpForce;
             this.isOnGround = false;
+            this.coyoteTimer = 0;
         }
 
         // Vertical / Downwards Input Handling
