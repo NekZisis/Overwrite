@@ -9,8 +9,8 @@ bgCanvas.height = 1080;
 // dynamic canvas
 const gameCanvas = document.getElementById('gameCanvas');
 const gameCTX = gameCanvas.getContext('2d');
-gameCanvas.width = 1980;
-gameCanvas.height = 1024;
+gameCanvas.width = 1920;
+gameCanvas.height = 1080;
 
 // Initiate game
 const game = new Game(gameCanvas.width, gameCanvas.height);

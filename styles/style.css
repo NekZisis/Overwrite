@@ -6,44 +6,41 @@
 
 body {
     background-color: #1a1a1a;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     min-height: 100dvh;
     overflow: hidden;
 }
 
 #game-container {
-  position: relative;
+    position: relative;
+    aspect-ratio: 16 / 9;
 
-  aspect-ratio: 16/9; 
+    width: min(100dvw, calc(100dvh * (16 / 9)));
 
-  width: 100dvw;
-  max-width: 1280px;
-  max-height: 100dvh;
+    max-width: 1920px;
+    max-height: 1080px;
 }
 
 canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
 
-  display: block;
-  background-color: #272727;
-
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 #bgCanvas {
-  z-index: 1;
+    z-index: 1;
+    background-color: #000;
 }
 
 #gameCanvas {
-  z-index: 2;
-  background-color: transparent;
+    z-index: 2;
+    background-color: transparent;
 }
 
 #mobile-blocker {

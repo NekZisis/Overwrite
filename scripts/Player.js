@@ -4,8 +4,8 @@ export class Player {
         this.gameHeight = gameHeight;
 
         // player dimensions (hitbox)
-        this.width = 30;
-        this.height = 50;
+        this.width = 20;
+        this.height = 40;
 
         // spawn position (bottom-center for now)
         this.x = this.gameWidth / 2 - this.width / 2;
@@ -16,9 +16,9 @@ export class Player {
         this.vy = 0;
 
         // physics and control constants
-        this.speed = 700;        // horizontal movement speed (px/s)
-        this.jumpForce = -750;   // upward jump speed (px/s)
-        this.downForce = 650;   //  downward movement speed (px/s)
+        this.speed = 350;        // horizontal movement speed (px/s)
+        this.jumpForce = -550;   // upward jump speed (px/s)
+        this.downForce = 400;   //  downward movement speed (px/s)
         this.gravity = 1500;     // acceleration due to gravity (px/s^2)
         this.isOnGround = true;
         this.facing = "right";
@@ -60,13 +60,13 @@ export class Player {
         this.y += this.vy * deltaTime;
 
         // 4. Horizontal Screen Boundaries
-        if (this.x < 40) this.x = 40;
-        if (this.x + this.width > this.gameWidth - 40) {
-          this.x = this.gameWidth - this.width - 40;
+        if (this.x < 20) this.x = 20;
+        if (this.x + this.width > this.gameWidth - 20) {
+          this.x = this.gameWidth - this.width - 20;
         }
 
         // 5. Floor Collision & Ground Snap
-        const floorLevel = this.gameHeight - 40;
+        const floorLevel = this.gameHeight - 20;
 
         if (this.y + this.height >= floorLevel) {
           this.y = floorLevel - this.height;
