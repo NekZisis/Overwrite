@@ -31,21 +31,21 @@ export class Player {
         const rightPressed = input.isPressed('KeyD');
 
         if (leftPressed && !rightPressed) {
-          this.vx = -this.speed;
-          this.facing = "left";
+        this.vx = -this.speed;
+        this.facing = "left";
         } else if (rightPressed && !leftPressed) {
-          this.vx = this.speed;
-          this.facing = "right";
+        this.vx = this.speed;
+        this.facing = "right";
         } else {
-          this.vx = 0;
+        this.vx = 0;
         }
 
         // Vertical / Jump Input Handling
         const jumpPressed = input.isPressed('KeyW');
 
         if (jumpPressed && this.isOnGround) {
-          this.vy = this.jumpForce;
-          this.isOnGround = false;
+        this.vy = this.jumpForce;
+        this.isOnGround = false;
         }
 
         // Vertical / Downwards Input Handling
@@ -55,15 +55,77 @@ export class Player {
             this.vy = this.downForce;
         }
 
-        // Physics Integration
-        this.vy += this.gravity * deltaTime;
-        this.x += this.vx * deltaTime;
-        this.y += this.vy * deltaTime;
+        // Horizontal movement and collision resolution
+        const nextX = this.x + this.vx * deltaTime;
+        const horizontalCollisions = this.checkForCollision(nextX, this.y);
 
-        // Horizontal Screen Boundaries
-        if (this.x < 20) this.x = 20;
-        if (this.x + this.width > this.gameWidth - 20) {
-          this.x = this.gameWidth - this.width - 20;
+        if (horizontalCollisions.length === 0) {
+            this.x = nextX;
+        } else if (this.vx > 0) {
+            let nearestLeftEdge = horizontalCollisions[0][0];
+
+            for (const collision of horizontalCollisions) {
+                const objectX = collision[0];
+
+                if (objectX < nearestLeftEdge) {
+                    nearestLeftEdge = objectX;
+                }
+            }
+
+            this.x = nearestLeftEdge - this.width;
+            this.vx = 0;
+        } else if (this.vx < 0) {
+            const firstCollision = horizontalCollisions[0];
+            let nearestRightEdge = firstCollision[0] + firstCollision[2];
+
+            for (const collision of horizontalCollisions) {
+                const objectRightEdge = collision[0] + collision[2];
+
+                if (objectRightEdge > nearestRightEdge) {
+                    nearestRightEdge = objectRightEdge;
+                }
+            }
+
+            this.x = nearestRightEdge;
+            this.vx = 0;
+        }
+
+        // Vertical movement and collision resolution
+        this.isOnGround = false;
+        this.vy += this.gravity * deltaTime;
+        const nextY = this.y + this.vy * deltaTime;
+        const verticalCollisions = this.checkForCollision(this.x, nextY);
+
+        if (verticalCollisions.length === 0) {
+            this.y = nextY;
+        } else if (this.vy > 0) {
+            let nearestTopEdge = verticalCollisions[0][1];
+
+            for (const collision of verticalCollisions) {
+                const objectY = collision[1];
+
+                if (objectY < nearestTopEdge) {
+                    nearestTopEdge = objectY;
+                }
+            }
+
+            this.y = nearestTopEdge - this.height;
+            this.vy = 0;
+            this.isOnGround = true;
+        } else if (this.vy < 0) {
+            const firstCollision = verticalCollisions[0];
+            let nearestBottomEdge = firstCollision[1] + firstCollision[3];
+
+            for (const collision of verticalCollisions) {
+                const objectBottomEdge = collision[1] + collision[3];
+
+                if (objectBottomEdge > nearestBottomEdge) {
+                    nearestBottomEdge = objectBottomEdge;
+                }
+            }
+
+            this.y = nearestBottomEdge;
+            this.vy = 0;
         }
 
         // Dash 
@@ -73,20 +135,26 @@ export class Player {
             // implement dash
         }
 
-        // Floor Collision & Ground Snap
-        const floorLevel = this.gameHeight - 20;
-
-        if (this.y + this.height >= floorLevel) {
-          this.y = floorLevel - this.height;
-          this.vy = 0;
-          this.isOnGround = true;
-        }
-        
-
     }
 
-    enableCollisions() {
-      
+    checkForCollision(x, y) {
+        const playerRight = x + this.width;
+        const playerBottom = y + this.height;
+        const collisions = [];
+
+        for (const [objectX, objectY, objectWidth, objectHeight] of this.objects) {
+            const overlaps =
+                (x < objectX + objectWidth) &&
+                (playerRight > objectX) &&
+                (y < objectY + objectHeight) &&
+                (playerBottom > objectY);
+
+            if (overlaps) {
+                collisions.push([objectX, objectY, objectWidth, objectHeight]);
+            }
+        }
+
+        return collisions;
     }
 
     // draw player model at current position (white rectangle for now)
