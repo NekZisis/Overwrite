@@ -22,7 +22,11 @@ game.renderBackground(bgCTX);
 
 let lastTime = 0; // initialize the deltaTime calculator
 function gameLoop(timeStamp) {
-    const deltaTime = (timeStamp - lastTime) / 1000;
+    if (!lastTime) lastTime = timeStamp;
+
+    let deltaTime = (timeStamp - lastTime) / 1000;
+    deltaTime = Math.min(deltaTime, 0.1);
+
     lastTime = timeStamp;
 
     // game loop
@@ -30,6 +34,12 @@ function gameLoop(timeStamp) {
     game.render(gameCTX);  // render the new frame
     requestAnimationFrame(gameLoop); // continue
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        lastTime = performance.now();
+    }
+});
 
 // block out all mobile users
 function isMobileDevice() {

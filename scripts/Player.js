@@ -19,10 +19,12 @@ export class Player {
         // physics and control constants
         this.speed = 350;        // horizontal movement speed (px/s)
         this.jumpForce = -550;   // upward jump speed (px/s)
-        this.downForce = 400;   //  downward movement speed (px/s)
+        this.downForce = 550;   //  downward movement speed (px/s)
         this.gravity = 1500;     // acceleration due to gravity (px/s^2)
         this.isOnGround = false;
         this.facing = "right";
+        this.dashing = false;
+        this.coyoteTimer = 100 // milliseconds
     }
 
     update(deltaTime, input) {
@@ -31,21 +33,21 @@ export class Player {
         const rightPressed = input.isPressed('KeyD');
 
         if (leftPressed && !rightPressed) {
-        this.vx = -this.speed;
-        this.facing = "left";
+            this.vx = -this.speed;
+            this.facing = "left";
         } else if (rightPressed && !leftPressed) {
-        this.vx = this.speed;
-        this.facing = "right";
-        } else {
-        this.vx = 0;
-        }
+            this.vx = this.speed;
+            this.facing = "right";
+        } else if (!rightPressed && !leftPressed) {
+            if (!this.dashing) this.vx = 0;
+        } 
 
         // Vertical / Jump Input Handling
         const jumpPressed = input.isPressed('KeyW');
 
         if (jumpPressed && this.isOnGround) {
-        this.vy = this.jumpForce;
-        this.isOnGround = false;
+            this.vy = this.jumpForce;
+            this.isOnGround = false;
         }
 
         // Vertical / Downwards Input Handling
@@ -132,7 +134,22 @@ export class Player {
         const spacePressed = input.isPressed('Space');
 
         if (spacePressed) {
-            // implement dash
+            input.dash((unlock) => {
+
+                this.dashing = true;
+                this.vy = 0;
+                this.gravity = 0;
+
+                if (this.facing == 'right') {
+                    this.vx = 900;
+                } else this.vx = -900;
+
+                setTimeout(() => {
+                    unlock();
+                    this.gravity = 1500;
+                    this.dashing = false;
+                }, 200);
+            });
         }
 
     }

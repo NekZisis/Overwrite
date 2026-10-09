@@ -1,10 +1,13 @@
 export class InputHandler {
     constructor() {
         this.keys = new Set();
+        this.isLocked = false; 
 
         // KEYBOARD
 
         window.addEventListener('keydown', (e) => {
+            if (this.isLocked) return;
+
         // Prevent browser viewport scrolling on navigation keys
             if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
                 e.preventDefault();
@@ -13,9 +16,31 @@ export class InputHandler {
         });
 
         window.addEventListener('keyup', (e) => {
-        this.keys.delete(e.code);
+            if (this.isLocked) return;
+            this.keys.delete(e.code);
         });
 
+        // clear all keys when tab or window loses focus
+        window.addEventListener('blur', () => {
+            if (this.isLocked) return;
+
+            this.keys.clear();
+        });
+
+    }
+
+    dash(actionCallback) {
+        if (this.isLocked) return;
+
+        // lock inputs and clear active key states
+        this.isLocked = true;
+        this.keys.clear();
+
+        // Perform the single action
+        actionCallback(() => {
+            // Callback function to unlock when the action finishes
+            this.isLocked = false;
+        });
     }
 
     isPressed(code) {
