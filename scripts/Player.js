@@ -27,7 +27,9 @@ export class Player {
         this.isOnGround = false;
         this.dashing = false;
         this.dashTimer = 0;
+        this.dashCooldown = 0;
         this.dashUnlock = null;
+        this.dashDirection = 1;
         this.latched = false; 
         this.disableGravity = false;
 
@@ -42,45 +44,55 @@ export class Player {
 
             if (this.dashTimer <= 1e-9) {
                 this.dashing = false;
-                this.gravity = 1500;
                 this.dashTimer = 0;
+                this.dashCooldown = 0.5;
                 this.dashUnlock();
                 this.dashUnlock = null;
             }
+        } else if (this.dashCooldown > 0) {
+            this.dashCooldown = Math.max(0, this.dashCooldown - deltaTime);
+            if (this.dashCooldown <= 1e-9) this.dashCooldown = 0;
+        }
+
+        if (this.dashing) {
+            this.vx = 900 * this.dashDirection;
+            this.vy = 0;
         }
 
         // Horizontal Input Handling
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
 
-        if (leftPressed && !rightPressed) {
+        if (!this.dashing && leftPressed && !rightPressed) {
             this.vx = -this.speed;
             this.facing = "left";
-        } else if (rightPressed && !leftPressed) {
+        } else if (!this.dashing && rightPressed && !leftPressed) {
             this.vx = this.speed;
             this.facing = "right";
-        } else if (!rightPressed && !leftPressed) {
-            if (!this.dashing) this.vx = 0;
+        } else if (!this.dashing && !rightPressed && !leftPressed) {
+            this.vx = 0;
         } 
 
         // Vertical / Jump Input Handling
         const jumpPressed = input.isPressed('KeyW');
-        if (this.isOnGround) {
-            this.coyoteTimer = this.coyoteTime;
-        } else {
-            this.coyoteTimer = Math.max(0, this.coyoteTimer - deltaTime);
-        }
+        if (!this.dashing) {
+            if (this.isOnGround) {
+                this.coyoteTimer = this.coyoteTime;
+            } else {
+                this.coyoteTimer = Math.max(0, this.coyoteTimer - deltaTime);
+            }
 
-        if (jumpPressed && this.coyoteTimer > 0) {
-            this.vy = this.jumpForce;
-            this.isOnGround = false;
-            this.coyoteTimer = 0;
+            if (jumpPressed && this.coyoteTimer > 0) {
+                this.vy = this.jumpForce;
+                this.isOnGround = false;
+                this.coyoteTimer = 0;
+            }
         }
 
         // Vertical / Downwards Input Handling
         const downPressed = input.isPressed('KeyS');
 
-        if (downPressed && !this.isOnGround) {
+        if (!this.dashing && downPressed && !this.isOnGround) {
             this.vy = this.downForce;
         }
 
@@ -121,57 +133,59 @@ export class Player {
         }
 
         // Vertical movement and collision resolution
-        this.isOnGround = false;
-        if (!this.disableGravity) this.vy += this.gravity * deltaTime;
-        const nextY = this.y + this.vy * deltaTime;
-        const verticalCollisions = this.checkForCollision(this.x, nextY);
-
-        if (verticalCollisions.length === 0) {
-            this.y = nextY;
-        } else if (this.vy > 0) {
-            let nearestTopEdge = verticalCollisions[0][1];
-
-            for (const collision of verticalCollisions) {
-                const objectY = collision[1];
-
-                if (objectY < nearestTopEdge) {
-                    nearestTopEdge = objectY;
-                }
-            }
-
-            this.y = nearestTopEdge - this.height;
+        if (this.dashing) {
             this.vy = 0;
-            this.isOnGround = true;
-        } else if (this.vy < 0) {
-            const firstCollision = verticalCollisions[0];
-            let nearestBottomEdge = firstCollision[1] + firstCollision[3];
+        } else {
+            this.isOnGround = false;
+            if (!this.disableGravity) this.vy += this.gravity * deltaTime;
+            const nextY = this.y + this.vy * deltaTime;
+            const verticalCollisions = this.checkForCollision(this.x, nextY);
 
-            for (const collision of verticalCollisions) {
-                const objectBottomEdge = collision[1] + collision[3];
+            if (verticalCollisions.length === 0) {
+                this.y = nextY;
+            } else if (this.vy > 0) {
+                let nearestTopEdge = verticalCollisions[0][1];
 
-                if (objectBottomEdge > nearestBottomEdge) {
-                    nearestBottomEdge = objectBottomEdge;
+                for (const collision of verticalCollisions) {
+                    const objectY = collision[1];
+
+                    if (objectY < nearestTopEdge) {
+                        nearestTopEdge = objectY;
+                    }
                 }
-            }
 
-            this.y = nearestBottomEdge;
-            this.vy = 0;
+                this.y = nearestTopEdge - this.height;
+                this.vy = 0;
+                this.isOnGround = true;
+            } else if (this.vy < 0) {
+                const firstCollision = verticalCollisions[0];
+                let nearestBottomEdge = firstCollision[1] + firstCollision[3];
+
+                for (const collision of verticalCollisions) {
+                    const objectBottomEdge = collision[1] + collision[3];
+
+                    if (objectBottomEdge > nearestBottomEdge) {
+                        nearestBottomEdge = objectBottomEdge;
+                    }
+                }
+
+                this.y = nearestBottomEdge;
+                this.vy = 0;
+            }
         }
 
         // Dash 
         const spacePressed = input.isPressed('Space');
 
-        if (spacePressed) {
+        if (spacePressed && !this.dashing && this.dashCooldown === 0) {
             input.dash((unlock) => {
                 this.dashing = true;
                 this.dashTimer = 0.2;
                 this.dashUnlock = unlock;
                 this.vy = 0;
-                this.gravity = 0;
+                this.dashDirection = this.facing === 'right' ? 1 : -1;
 
-                if (this.facing === 'right') {
-                    this.vx = 900;
-                } else this.vx = -900;
+                this.vx = 900 * this.dashDirection;
             });
         }
 

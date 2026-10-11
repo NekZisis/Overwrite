@@ -6,9 +6,6 @@ export class InputHandler {
         // KEYBOARD
 
         window.addEventListener('keydown', (e) => {
-            if (this.isLocked) return;
-
-        // Prevent browser viewport scrolling on navigation keys
             if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
                 e.preventDefault();
             }
@@ -16,7 +13,6 @@ export class InputHandler {
         });
 
         window.addEventListener('keyup', (e) => {
-            if (this.isLocked) return;
             this.keys.delete(e.code);
         });
 
@@ -28,19 +24,16 @@ export class InputHandler {
     dash(actionCallback) {
         if (this.isLocked) return;
 
-        // lock inputs and clear active key states
+        // Track physical key state while withholding it from gameplay.
         this.isLocked = true;
-        this.keys.clear();
 
-        // Perform the single action
         actionCallback(() => {
-            // Callback function to unlock when the action finishes
             this.isLocked = false;
         });
     }
 
     isPressed(code) {
-        return this.keys.has(code);
+        return !this.isLocked && this.keys.has(code);
     }
 
     clear() {
