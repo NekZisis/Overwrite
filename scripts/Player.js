@@ -26,6 +26,8 @@ export class Player {
         this.facing = "right";
         this.isOnGround = false;
         this.dashing = false;
+        this.dashTimer = 0;
+        this.dashUnlock = null;
         this.latched = false; 
         this.disableGravity = false;
 
@@ -35,6 +37,18 @@ export class Player {
     }
 
     update(deltaTime, input) {
+        if (this.dashing) {
+            this.dashTimer -= deltaTime;
+
+            if (this.dashTimer <= 1e-9) {
+                this.dashing = false;
+                this.gravity = 1500;
+                this.dashTimer = 0;
+                this.dashUnlock();
+                this.dashUnlock = null;
+            }
+        }
+
         // Horizontal Input Handling
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
@@ -149,20 +163,15 @@ export class Player {
 
         if (spacePressed) {
             input.dash((unlock) => {
-
                 this.dashing = true;
+                this.dashTimer = 0.2;
+                this.dashUnlock = unlock;
                 this.vy = 0;
                 this.gravity = 0;
 
-                if (this.facing == 'right') {
+                if (this.facing === 'right') {
                     this.vx = 900;
                 } else this.vx = -900;
-
-                setTimeout(() => {
-                    unlock();
-                    this.gravity = 1500;
-                    this.dashing = false;
-                }, 200);
             });
         }
 

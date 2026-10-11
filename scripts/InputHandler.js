@@ -20,12 +20,8 @@ export class InputHandler {
             this.keys.delete(e.code);
         });
 
-        // clear all keys when tab or window loses focus
-        window.addEventListener('blur', () => {
-            if (this.isLocked) return;
-
-            this.keys.clear();
-        });
+        // Clear held keys when tab or window loses focus.
+        window.addEventListener('blur', () => this.clear());
 
     }
 
@@ -45,5 +41,9 @@ export class InputHandler {
 
     isPressed(code) {
         return this.keys.has(code);
+    }
+
+    clear() {
+        this.keys.clear();
     }
 }

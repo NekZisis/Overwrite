@@ -55,7 +55,7 @@ export class Game {
         const targetX = this.player.x + (this.player.width / 2) - (viewWidth / 2);
         const targetY = this.player.y + (this.player.height / 2) - (viewHeight / 2);        
 
-        // Apply smooth following (lerp)
+        // apply smooth following (lerp)
         this.camera.x += (targetX - this.camera.x) * 0.1;
         this.camera.y += (targetY - this.camera.y) * 0.1;
     }
@@ -65,9 +65,9 @@ export class Game {
         ctx.clearRect(0, 0, this.width, this.height);
 
         ctx.save();
+        
         ctx.scale(this.zoom, this.zoom); // zoom in
         ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
-        
         // render entities (just the player for now)
         this.player.draw(ctx);
         
@@ -79,16 +79,13 @@ export class Game {
         ctx.clearRect(0, 0, this.width, this.height);
 
         ctx.save();
-        
-        // ADD THIS LINE: Apply the exact same zoom to the background
+
         ctx.scale(this.zoom, this.zoom); 
-        
-        // Shift context by negative camera coordinates
+        // shift background by negative camera coordinates
         ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
-        
         // render the static background 
         this.background.draw(ctx);
-        
+
         ctx.restore();
     }
 }

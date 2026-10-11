@@ -18,27 +18,58 @@ gameCanvas.height = virtual_height;
 // initiate game
 const game = new Game(gameCanvas.width, gameCanvas.height); 
 
-let lastTime = 0; // initialize the deltaTime calculator
-function gameLoop(timeStamp) {
-    if (!lastTime) lastTime = timeStamp;
+const fixedTimeStep = 1 / 60;
+const maxFrameTime = 0.1;
+let accumulator = 0;
+let lastTime = null;
+let windowFocused = document.hasFocus();
+let gameActive = windowFocused && document.visibilityState === 'visible';
 
-    let deltaTime = (timeStamp - lastTime) / 1000;
-    deltaTime = Math.min(deltaTime, 0.1);
+function updateGameActivity() {
+    const active = windowFocused && document.visibilityState === 'visible';
 
-    lastTime = timeStamp;
+    if (active === gameActive) return;
 
-    // game loop
-    game.update(deltaTime); // update dynamic state
-    game.renderBackground(bgCTX); 
-    game.render(gameCTX);  // render the new frame
-    requestAnimationFrame(gameLoop); // continue
+    gameActive = active;
+    accumulator = 0;
+    lastTime = null;
+
+    if (!gameActive) {
+        game.input.clear();
+    }
 }
 
-document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-        lastTime = performance.now();
-    }
+window.addEventListener('blur', () => {
+    windowFocused = false;
+    updateGameActivity();
 });
+
+window.addEventListener('focus', () => {
+    windowFocused = true;
+    updateGameActivity();
+});
+
+document.addEventListener('visibilitychange', updateGameActivity);
+
+function gameLoop(timeStamp) {
+    if (lastTime === null) lastTime = timeStamp;
+    const elapsed = Math.min((timeStamp - lastTime) / 1000, maxFrameTime);
+    lastTime = timeStamp;
+
+    if (gameActive) {
+        accumulator += elapsed;
+        while (accumulator >= fixedTimeStep) {
+            game.update(fixedTimeStep);
+            accumulator -= fixedTimeStep;
+        }
+    } else {
+        accumulator = 0;
+    }
+
+    game.renderBackground(bgCTX);
+    game.render(gameCTX);
+    requestAnimationFrame(gameLoop);
+}
 
 // block out all mobile users
 function isMobileDevice() {
@@ -49,6 +80,5 @@ function isMobileDevice() {
 if (isMobileDevice()) {
     document.getElementById('mobile-blocker').style.display = 'flex';
 } else {
-    // starts game loop if not a mobile user
     requestAnimationFrame(gameLoop);
 }
