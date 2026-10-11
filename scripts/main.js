@@ -16,9 +16,7 @@ gameCanvas.width = virtual_width;
 gameCanvas.height = virtual_height;
 
 // initiate game
-const game = new Game(gameCanvas.width, gameCanvas.height);
-// render background once
-game.renderBackground(bgCTX);
+const game = new Game(gameCanvas.width, gameCanvas.height); 
 
 let lastTime = 0; // initialize the deltaTime calculator
 function gameLoop(timeStamp) {
@@ -31,6 +29,7 @@ function gameLoop(timeStamp) {
 
     // game loop
     game.update(deltaTime); // update dynamic state
+    game.renderBackground(bgCTX); 
     game.render(gameCTX);  // render the new frame
     requestAnimationFrame(gameLoop); // continue
 }

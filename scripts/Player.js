@@ -16,16 +16,21 @@ export class Player {
         this.vx = 0;
         this.vy = 0;
 
-        // physics and control constants
+        // velocity value constants (px/s)
         this.speed = 350;        // horizontal movement speed (px/s)
         this.jumpForce = -550;   // upward jump speed (px/s)
-        this.downForce = 550;   //  downward movement speed (px/s)
+        this.downForce = 500;   //  downward movement speed (px/s)
         this.gravity = 1500;     // acceleration due to gravity (px/s^2)
-        this.isOnGround = false;
-        this.facing = "right";
-        this.dashing = false;
 
-        this.coyoteTime = 0.05 // 100 ms
+        // state variables
+        this.facing = "right";
+        this.isOnGround = false;
+        this.dashing = false;
+        this.latched = false; 
+        this.disableGravity = false;
+
+        // coyote timer
+        this.coyoteTime = 0.05 // 50 ms
         this.coyoteTimer = 0;
     }
 
@@ -84,6 +89,7 @@ export class Player {
 
             this.x = nearestLeftEdge - this.width;
             this.vx = 0;
+
         } else if (this.vx < 0) {
             const firstCollision = horizontalCollisions[0];
             let nearestRightEdge = firstCollision[0] + firstCollision[2];
@@ -102,7 +108,7 @@ export class Player {
 
         // Vertical movement and collision resolution
         this.isOnGround = false;
-        this.vy += this.gravity * deltaTime;
+        if (!this.disableGravity) this.vy += this.gravity * deltaTime;
         const nextY = this.y + this.vy * deltaTime;
         const verticalCollisions = this.checkForCollision(this.x, nextY);
 

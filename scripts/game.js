@@ -1,5 +1,5 @@
 import { Player } from './Player.js';
-import {Background} from './Background.js';
+import { Background } from './Background.js';
 import { InputHandler } from './InputHandler.js';
 
 export class Game {
@@ -7,6 +7,9 @@ export class Game {
         this.width = width;
         this.height = height;
         this.input = new InputHandler();
+
+        // Add camera object starting at 0,0
+        this.camera = { x: 0, y: 0 };
 
         const middle = this.width / 2;
         this.objects = [
@@ -40,27 +43,52 @@ export class Game {
 
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
+        this.zoom = 1.0;
     }
 
     update(deltaTime) {
         this.player.update(deltaTime, this.input);
+
+        const viewWidth = this.width / this.zoom;
+        const viewHeight = this.height / this.zoom;
+        // center the camera  
+        const targetX = this.player.x + (this.player.width / 2) - (viewWidth / 2);
+        const targetY = this.player.y + (this.player.height / 2) - (viewHeight / 2);        
+
+        // Apply smooth following (lerp)
+        this.camera.x += (targetX - this.camera.x) * 0.1;
+        this.camera.y += (targetY - this.camera.y) * 0.1;
     }
 
     render(ctx) {
-        // clear dynamic canvas
+        // clear dynamic canvas in screen space
         ctx.clearRect(0, 0, this.width, this.height);
 
+        ctx.save();
+        ctx.scale(this.zoom, this.zoom); // zoom in
+        ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
+        
         // render entities (just the player for now)
         this.player.draw(ctx);
+        
+        ctx.restore();
     }
 
     renderBackground(ctx) {
-        // clear background canvas
+        // clear background canvas in screen space
         ctx.clearRect(0, 0, this.width, this.height);
 
+        ctx.save();
+        
+        // ADD THIS LINE: Apply the exact same zoom to the background
+        ctx.scale(this.zoom, this.zoom); 
+        
+        // Shift context by negative camera coordinates
+        ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
+        
         // render the static background 
         this.background.draw(ctx);
+        
+        ctx.restore();
     }
-
-    
 }
