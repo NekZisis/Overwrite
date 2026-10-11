@@ -43,7 +43,9 @@ export class Game {
 
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
-        this.zoom = 1.0;
+
+        this.zoom = 2;
+        this.lerp = 0.1;
     }
 
     update(deltaTime) {
@@ -56,8 +58,8 @@ export class Game {
         const targetY = this.player.y + (this.player.height / 2) - (viewHeight / 2);        
 
         // apply smooth following (lerp)
-        this.camera.x += (targetX - this.camera.x) * 0.1;
-        this.camera.y += (targetY - this.camera.y) * 0.1;
+        this.camera.x += (targetX - this.camera.x) * this.lerp;
+        this.camera.y += (targetY - this.camera.y) * this.lerp;
     }
 
     render(ctx) {
@@ -65,7 +67,7 @@ export class Game {
         ctx.clearRect(0, 0, this.width, this.height);
 
         ctx.save();
-        
+
         ctx.scale(this.zoom, this.zoom); // zoom in
         ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
         // render entities (just the player for now)

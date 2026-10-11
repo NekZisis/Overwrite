@@ -31,9 +31,10 @@ export class Player {
         this.dashUnlock = null;
         this.dashDirection = 1;
         this.latched = false; 
-        this.disableGravity = false;
+        this.toggleGravity = true;
+        this.wallLatched = null;
 
-        // coyote timer
+        // coyote time settings
         this.coyoteTime = 0.05 // 50 ms
         this.coyoteTimer = 0;
     }
@@ -59,21 +60,35 @@ export class Player {
             this.vy = 0;
         }
 
-        // Horizontal Input Handling
+        // horizontal movement
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
 
         if (!this.dashing && leftPressed && !rightPressed) {
+            // unlatch from right wall
+            if (this.wallLatched === 'right') {
+                this.toggleGravity = true;
+                this.coyoteTimer = 0.1;
+                this.wallLatched = null;
+            }
+            // proceed with movement
             this.vx = -this.speed;
             this.facing = "left";
         } else if (!this.dashing && rightPressed && !leftPressed) {
+            // unlatch from left wall
+            if (this.wallLatched === 'left') {
+                this.toggleGravity = true;
+                this.coyoteTimer = 0.1;
+                this.wallLatched = null;
+            }
+            // proceed with movement
             this.vx = this.speed;
             this.facing = "right";
         } else if (!this.dashing && !rightPressed && !leftPressed) {
             this.vx = 0;
-        } 
+        }
 
-        // Vertical / Jump Input Handling
+        // Jump
         const jumpPressed = input.isPressed('KeyW');
         if (!this.dashing) {
             if (this.isOnGround) {
@@ -83,15 +98,25 @@ export class Player {
             }
 
             if (jumpPressed && this.coyoteTimer > 0) {
+
+                this.vy = this.jumpForce;
+                this.isOnGround = false;
+                this.coyoteTimer = 0;
+            }
+
+            if (jumpPressed && this.wallLatched && (rightPressed || leftPressed)) {
+                this.toggleGravity = true;
+                this.coyoteTime = 0.05; // reset coyote time
+                this.wallLatched = false;
+
                 this.vy = this.jumpForce;
                 this.isOnGround = false;
                 this.coyoteTimer = 0;
             }
         }
 
-        // Vertical / Downwards Input Handling
+        // Down Dash
         const downPressed = input.isPressed('KeyS');
-
         if (!this.dashing && downPressed && !this.isOnGround) {
             this.vy = this.downForce;
         }
@@ -116,6 +141,14 @@ export class Player {
             this.x = nearestLeftEdge - this.width;
             this.vx = 0;
 
+            // latched on a right wall
+            
+            this.wallLatched = 'right';
+            this.toggleGravity = false;
+            this.vy = 0;
+            this.isOnGround = true;
+
+
         } else if (this.vx < 0) {
             const firstCollision = horizontalCollisions[0];
             let nearestRightEdge = firstCollision[0] + firstCollision[2];
@@ -130,6 +163,14 @@ export class Player {
 
             this.x = nearestRightEdge;
             this.vx = 0;
+
+            // latched on a left wall
+
+            this.wallLatched = 'left';
+            this.toggleGravity = false;
+            this.vy = 0;
+            this.isOnGround = true;
+
         }
 
         // Vertical movement and collision resolution
@@ -137,7 +178,7 @@ export class Player {
             this.vy = 0;
         } else {
             this.isOnGround = false;
-            if (!this.disableGravity) this.vy += this.gravity * deltaTime;
+            if (this.toggleGravity) this.vy += this.gravity * deltaTime;
             const nextY = this.y + this.vy * deltaTime;
             const verticalCollisions = this.checkForCollision(this.x, nextY);
 
@@ -175,7 +216,7 @@ export class Player {
         }
 
         // Dash 
-        const spacePressed = input.isPressed('Space');
+        const spacePressed = input.isPressed('KeyC');
 
         if (spacePressed && !this.dashing && this.dashCooldown === 0) {
             input.dash((unlock) => {
