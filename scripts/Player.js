@@ -216,15 +216,15 @@ export class Player {
         }
 
         // Dash 
-        const spacePressed = input.isPressed('KeyC');
+        const dashKeyPressed = input.isPressed('KeyC');
 
-        if (spacePressed && !this.dashing && this.dashCooldown === 0) {
+        if (dashKeyPressed && !this.dashing && this.dashCooldown === 0) {
             input.dash((unlock) => {
                 this.dashing = true;
                 this.dashTimer = 0.2;
                 this.dashUnlock = unlock;
                 this.vy = 0;
-                this.dashDirection = this.facing === 'right' ? 1 : -1;
+                this.dashDirection = (this.facing === 'right') ? 1 : -1;
 
                 this.vx = 900 * this.dashDirection;
             });

@@ -44,7 +44,7 @@ export class Game {
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
 
-        this.zoom = 2;
+        this.zoom = 1.5;
         this.lerp = 0.1;
     }
 
