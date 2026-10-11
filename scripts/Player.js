@@ -118,7 +118,7 @@ export class Player {
         // Down Dash
         const downPressed = input.isPressed('KeyS');
         if (!this.dashing && downPressed && !this.isOnGround) {
-            this.vy = this.downForce;
+            if (this.downForce > this.vy) this.vy = this.downForce;
         }
 
         // Horizontal movement and collision resolution
