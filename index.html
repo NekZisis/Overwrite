@@ -4,16 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Learning Canvas</title>
-  <link rel="stylesheet" href="styles/style.css">
+  <link rel="stylesheet" href="styles/game-styles.css">
+  <link rel="stylesheet" href="styles/settings-styles.css">
 </head>
 <body>
     <div id="mobile-blocker">This game requires a desktop</div>
 
     <div id="game-container">
+        <img id="duck-background" src="images.jfif" alt="" aria-hidden="true" hidden>
         <canvas id="bgCanvas"></canvas>
         <canvas id="gameCanvas"></canvas>
     </div>
+    <div id="settings-menu">
+        <button id="duck-btn"> duck </button>
+    </div>
 
     <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="scripts/settings-main.js"></script>
 </body>
-</html>
+</html> 
