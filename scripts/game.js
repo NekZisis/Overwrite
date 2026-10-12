@@ -19,7 +19,7 @@ export class Game {
 
         this.zoom = 2; //ACTUAL VALUE
         // this.zoom = 0.5; // PROTOTYPING VALUE
-        this.lerp = 0.1;
+        this.lerp = 0.08;
         this.cameraPadding = 100;
     }
 

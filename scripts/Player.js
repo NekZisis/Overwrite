@@ -226,7 +226,7 @@ export class Player {
                 this.vy = 0;
                 this.dashDirection = (this.facing === 'right') ? 1 : -1;
 
-                this.vx = 900 * this.dashDirection;
+                this.vx = 1000 * this.dashDirection;
             });
         }
 
