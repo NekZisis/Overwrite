@@ -1,22 +1,26 @@
 import { Game } from './game.js';
 
-const virtual_width = 1920;
-const virtual_height = 1080;
+const canvasWidth = 1920;
+const canvasHeight = 1080;
 
 // static/background (bg) canvas
 const bgCanvas = document.getElementById('bgCanvas');
 const bgCTX = bgCanvas.getContext('2d');
-bgCanvas.width = virtual_width;
-bgCanvas.height = virtual_height;
+bgCanvas.width = canvasWidth;
+bgCanvas.height = canvasHeight;
 
 // dynamic canvas
 const gameCanvas = document.getElementById('gameCanvas');
 const gameCTX = gameCanvas.getContext('2d');
-gameCanvas.width = virtual_width;
-gameCanvas.height = virtual_height;
+gameCanvas.width = canvasWidth;
+gameCanvas.height = canvasHeight;
 
-// initiate game
-const game = new Game(gameCanvas.width, gameCanvas.height); 
+const game = new Game(canvasWidth, canvasHeight);
+
+window.addEventListener('resize', () => {
+    game.resize(window.innerWidth, window.innerHeight);
+});
+game.resize(window.innerWidth, window.innerHeight);
 
 const fixedTimeStep = 1 / 60;
 const maxFrameTime = 0.1;

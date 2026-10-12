@@ -18,9 +18,9 @@ export class Player {
 
         // velocity value constants (px/s)
         this.speed = 350;        // horizontal movement speed (px/s)
-        this.jumpForce = -550;   // upward jump speed (px/s)
+        this.jumpForce = -650;   // upward jump speed (px/s)
         this.downForce = 500;   //  downward movement speed (px/s)
-        this.gravity = 1500;     // acceleration due to gravity (px/s^2)
+        this.gravity = 1900;     // acceleration due to gravity (px/s^2)
 
         // state variables
         this.facing = "right";
@@ -117,7 +117,7 @@ export class Player {
 
         // Down Dash
         const downPressed = input.isPressed('KeyS');
-        if (!this.dashing && downPressed && !this.isOnGround) {
+        if (!this.dashing && downPressed && !this.isOnGround && !this.wallLatched) {
             if (this.downForce > this.vy) this.vy = this.downForce;
         }
 
