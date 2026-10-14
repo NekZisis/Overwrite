@@ -20,7 +20,7 @@ export class Player {
         this.speed = 300;        // horizontal movement speed when on ground (px/s)
         this.airSpeed = 150;    // horizontal movement speed when on air
         this.groundDeceleration = 60000; // horizontal stopping acceleration (px/s^2)
-        this.airDeceleration = 600; // horizontal stopping acceleration while airborne without input (px/s^2)
+        this.airDeceleration = 1000; // horizontal stopping acceleration while airborne without input (px/s^2)
         this.jumpForce = -500;   // upward jump speed (px/s)
         this.downForce = 350;   //  downward movement speed (px/s)
         this.gravity = 1600;     // acceleration due to gravity (px/s^2)
