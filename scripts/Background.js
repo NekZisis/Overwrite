@@ -19,7 +19,13 @@ export class Background {
         ctx.fillStyle = '#414141';
 
         this.objects.forEach((platform) => {
-            ctx.fillRect(platform[0], platform[1], platform[2], platform[3]);
+            if (platform[4] === 'stone') {
+                ctx.fillRect(platform[0], platform[1], platform[2], platform[3]);
+            } else {
+                ctx.fillStyle = "#081d05";
+                ctx.fillRect(platform[0], platform[1], platform[2], platform[3]);
+                ctx.fillStyle = '#414141';
+            }
         });
     }
 

@@ -130,47 +130,57 @@ export class Player {
             this.x = nextX;
         } else if (this.vx > 0) {
             let nearestLeftEdge = horizontalCollisions[0][0];
+            let wallType;
 
             for (const collision of horizontalCollisions) {
                 const objectX = collision[0];
+                wallType = collision[4];
 
                 if (objectX < nearestLeftEdge) {
                     nearestLeftEdge = objectX;
+                    wallType = collision[4]; 
                 }
             }
 
             this.x = nearestLeftEdge - this.width;
             this.vx = 0;
 
-            // latched on a right wall
-            
-            this.wallLatched = 'right';
-            this.toggleGravity = false;
-            this.vy = 0;
-            this.isOnGround = true;
+            // latching on a right wall
+
+            if (wallType === 'vines') {
+                this.wallLatched = 'right';
+                this.toggleGravity = false;
+                this.vy = 0;
+                this.isOnGround = true;
+            }
 
 
         } else if (this.vx < 0) {
             const firstCollision = horizontalCollisions[0];
             let nearestRightEdge = firstCollision[0] + firstCollision[2];
+            let wallType;
 
             for (const collision of horizontalCollisions) {
                 const objectRightEdge = collision[0] + collision[2];
+                wallType = collision[4];
 
                 if (objectRightEdge > nearestRightEdge) {
                     nearestRightEdge = objectRightEdge;
+                    wallType = collision[4];
                 }
             }
 
             this.x = nearestRightEdge;
             this.vx = 0;
 
-            // latched on a left wall
+            // latching on a left wall
 
-            this.wallLatched = 'left';
-            this.toggleGravity = false;
-            this.vy = 0;
-            this.isOnGround = true;
+            if (wallType === 'vines') {
+                this.wallLatched = 'left';
+                this.toggleGravity = false;
+                this.vy = 0;
+                this.isOnGround = true;
+            }
 
         }
 
@@ -238,7 +248,7 @@ export class Player {
         const playerBottom = y + this.height;
         const collisions = [];
 
-        for (const [objectX, objectY, objectWidth, objectHeight] of this.objects) {
+        for (const [objectX, objectY, objectWidth, objectHeight, objectType] of this.objects) {
             const overlaps =
                 (x < objectX + objectWidth) &&
                 (playerRight > objectX) &&
@@ -246,7 +256,7 @@ export class Player {
                 (playerBottom > objectY);
 
             if (overlaps) {
-                collisions.push([objectX, objectY, objectWidth, objectHeight]);
+                collisions.push([objectX, objectY, objectWidth, objectHeight, objectType]);
             }
         }
 

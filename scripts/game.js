@@ -17,8 +17,8 @@ export class Game {
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
 
-        this.zoom = 1.9; //ACTUAL VALUE
-        // this.zoom = 0.5; // PROTOTYPING VALUE
+        // this.zoom = 1.9; // ACTUAL VALUE
+        this.zoom = 0.5; // DEVELOPMENT VALUE
         this.lerp = 0.08;
         this.cameraPadding = 100;
 
@@ -30,32 +30,32 @@ export class Game {
     createObjects(width, height) {
         const center = width / 2;
         return [
-            [0, 0, 20, height], 
-            [width - 20, 0, 20, height], 
-            [0, height - 20, width, 20],
-            [0, 0, width, 20],
-            [center - 325, 750, 650, 20],
-            [center - 285, 180, 35, 500],
-            [center + 250, 180, 35, 500],
-            [center - 475, 100, 50, 900],
-            [center + 425, 100, 50, 900],
-            [center + 50, 100, 100, 20],
-            [center - 150, 204, 100, 20],
-            [center + 50, 308, 100, 20],
-            [center - 150, 412, 100, 20],
-            [center + 50, 516, 100, 20],
-            [center - 150, 620, 100, 20],
-            [center - 325, height - 200, 100, 20],
-            [center + 225, height - 200, 100, 20],
-            [200, height - 100, 150, 20], 
-            [50, 500, 100, 20],
-            [50, height - 190, 100, 20],
-            [230, height - 450, 10, 220],
-            [230, height - 450, 65, 20], 
+            [0, 0, 20, height, 'stone'], 
+            [width - 20, 0, 20, height, 'stone'], 
+            [0, height - 20, width, 20, 'stone'],
+            [0, 0, width, 20, 'stone'],
+            [center - 325, 750, 650, 20, 'stone'],
+            [center - 285, 180, 35, 500, 'vines'],
+            [center + 250, 180, 35, 500, 'vines'],
+            [center - 475, 100, 50, 900, 'vines'],
+            [center + 425, 100, 50, 900, 'vines'],
+            [center + 50, 100, 100, 20, 'stone'],
+            [center - 150, 204, 100, 20, 'stone'],
+            [center + 50, 308, 100, 20, 'stone'],
+            [center - 150, 412, 100, 20, 'stone'],
+            [center + 50, 516, 100, 20, 'stone'],
+            [center - 150, 620, 100, 20, 'stone'],
+            [center - 325, height - 200, 100, 20, 'stone'],
+            [center + 225, height - 200, 100, 20, 'stone'],
+            [200, height - 100, 150, 20, 'stone'], 
+            [50, 500, 100, 20, 'stone'],
+            [50, height - 190, 100, 20, 'stone'],
+            [230, height - 450, 10, 220, 'vines'],
+            [230, height - 450, 65, 20, 'stone'], 
             [100, 100, 20, 300],
             [250, 250, 20, 250], 
             [375, 320, 20, 250], 
-            [center - 755, 100, 280, 20]
+            [center - 755, 100, 280, 20, 'stone']
         ];
     }
 
