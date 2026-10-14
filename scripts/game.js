@@ -17,8 +17,9 @@ export class Game {
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
 
-        // this.zoom = 1.9; // ACTUAL VALUE
-        this.zoom = 0.5; // DEVELOPMENT VALUE
+        this.zoom = 1.9; // ACTUAL VALUE
+        // this.zoom = 0.5; // DEVELOPMENT VALUE
+
         this.lerp = 0.08;
         this.cameraPadding = 100;
 

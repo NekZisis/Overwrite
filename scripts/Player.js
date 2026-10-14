@@ -17,10 +17,14 @@ export class Player {
         this.vy = 0;
 
         // velocity value constants (px/s)
-        this.speed = 200;        // horizontal movement speed (px/s)
+        this.speed = 300;        // horizontal movement speed when on ground (px/s)
+        this.airSpeed = 150;    // horizontal movement speed when on air
+        this.groundDeceleration = 60000; // horizontal stopping acceleration (px/s^2)
+        this.airDeceleration = 600; // horizontal stopping acceleration while airborne without input (px/s^2)
         this.jumpForce = -500;   // upward jump speed (px/s)
         this.downForce = 350;   //  downward movement speed (px/s)
-        this.gravity = 1500;     // acceleration due to gravity (px/s^2)
+        this.gravity = 1600;     // acceleration due to gravity (px/s^2)
+        this.maxFallSpeed = 800; // matches camera follow at 100px lag, 0.08 lerp, and 60 updates/s
         this.dashSpeed = 600;   // dashing speed (px/s for 0.2s)
 
         // state variables
@@ -41,11 +45,15 @@ export class Player {
     }
 
     update(deltaTime, input) {
+        const wasOnGround = this.isOnGround;
+        let dashEnded = false;
+
         if (this.dashing) {
             this.dashTimer -= deltaTime;
 
             if (this.dashTimer <= 1e-9) {
                 this.dashing = false;
+                dashEnded = true;
                 this.dashTimer = 0;
                 this.dashCooldown = 0.5;
                 this.dashUnlock();
@@ -64,6 +72,7 @@ export class Player {
         // horizontal movement
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
+        let movementDirection = 0;
 
         if (!this.dashing && leftPressed && !rightPressed) {
             // unlatch from right wall
@@ -72,9 +81,9 @@ export class Player {
                 this.coyoteTimer = 0.1;
                 this.wallLatched = null;
             }
-            // proceed with movement
-            this.vx = -this.speed;
+            movementDirection = -1;
             this.facing = "left";
+
         } else if (!this.dashing && rightPressed && !leftPressed) {
             // unlatch from left wall
             if (this.wallLatched === 'left') {
@@ -82,16 +91,27 @@ export class Player {
                 this.coyoteTimer = 0.1;
                 this.wallLatched = null;
             }
-            // proceed with movement
-            this.vx = this.speed;
+            movementDirection = 1;
             this.facing = "right";
-        } else if (!this.dashing && !rightPressed && !leftPressed) {
-            this.vx = 0;
+        } else if (!this.dashing && !rightPressed && !leftPressed) { // 
+            const deceleration = (this.isOnGround ? this.groundDeceleration : this.airDeceleration) * deltaTime;
+            this.vx = Math.sign(this.vx) * Math.max(0, Math.abs(this.vx) - deceleration);
+        } 
+
+        if (movementDirection !== 0) {
+            const targetSpeed = !this.isOnGround && this.vy > 0 ? this.airSpeed : this.speed;
+
+            // Preserve higher momentum in the chosen direction; otherwise switch to target speed immediately.
+            if (this.vx * movementDirection < targetSpeed) {
+                this.vx = movementDirection * targetSpeed;
+            }
         }
 
         // Jump
         const jumpPressed = input.isPressed('KeyW');
-        if (!this.dashing) {
+        if (this.dashing) {
+            this.coyoteTimer = Math.max(0, this.coyoteTimer - deltaTime);
+        } else {
             if (this.isOnGround) {
                 this.coyoteTimer = this.coyoteTime;
             } else {
@@ -190,6 +210,7 @@ export class Player {
         } else {
             this.isOnGround = false;
             if (this.toggleGravity) this.vy += this.gravity * deltaTime;
+            this.vy = Math.min(this.vy, this.maxFallSpeed);
             const nextY = this.y + this.vy * deltaTime;
             const verticalCollisions = this.checkForCollision(this.x, nextY);
 
@@ -224,6 +245,11 @@ export class Player {
                 this.y = nearestBottomEdge;
                 this.vy = 0;
             }
+        }
+
+        if (!this.dashing && this.isOnGround && (!wasOnGround || dashEnded)) {
+            const deceleration = this.groundDeceleration * deltaTime;
+            this.vx = Math.sign(this.vx) * Math.max(0, Math.abs(this.vx) - deceleration);
         }
 
         // Dash 
