@@ -17,10 +17,11 @@ export class Player {
         this.vy = 0;
 
         // velocity value constants (px/s)
-        this.speed = 350;        // horizontal movement speed (px/s)
-        this.jumpForce = -650;   // upward jump speed (px/s)
-        this.downForce = 500;   //  downward movement speed (px/s)
-        this.gravity = 1900;     // acceleration due to gravity (px/s^2)
+        this.speed = 200;        // horizontal movement speed (px/s)
+        this.jumpForce = -500;   // upward jump speed (px/s)
+        this.downForce = 350;   //  downward movement speed (px/s)
+        this.gravity = 1500;     // acceleration due to gravity (px/s^2)
+        this.dashSpeed = 600;   // dashing speed (px/s for 0.2s)
 
         // state variables
         this.facing = "right";
@@ -56,7 +57,7 @@ export class Player {
         }
 
         if (this.dashing) {
-            this.vx = 900 * this.dashDirection;
+            this.vx = this.dashSpeed * this.dashDirection;
             this.vy = 0;
         }
 
@@ -104,7 +105,7 @@ export class Player {
                 this.coyoteTimer = 0;
             }
 
-            if (jumpPressed && this.wallLatched && (rightPressed || leftPressed)) {
+            if (jumpPressed && this.wallLatched && (rightPressed !== leftPressed)) {
                 this.toggleGravity = true;
                 this.coyoteTime = 0.05; // reset coyote time
                 this.wallLatched = false;
@@ -226,7 +227,7 @@ export class Player {
                 this.vy = 0;
                 this.dashDirection = (this.facing === 'right') ? 1 : -1;
 
-                this.vx = 1000 * this.dashDirection;
+                this.vx = this.dashSpeed * this.dashDirection;
             });
         }
 
