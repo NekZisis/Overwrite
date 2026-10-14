@@ -18,6 +18,7 @@ export class Player {
 
         // velocity value constants (px/s)
         this.speed = 300;        // horizontal movement speed when on ground (px/s)
+        this.groundAcceleration = 1800; // horizontal movement acceleration when on ground (px/s^2)
         this.airSpeed = 150;    // horizontal movement speed when on air
         this.groundDeceleration = 60000; // horizontal stopping acceleration (px/s^2)
         this.airDeceleration = 1000; // horizontal stopping acceleration while airborne without input (px/s^2)
@@ -99,11 +100,22 @@ export class Player {
         } 
 
         if (movementDirection !== 0) {
-            const targetSpeed = !this.isOnGround && this.vy > 0 ? this.airSpeed : this.speed;
+            if (this.isOnGround) {
+                const speedInDirection = this.vx * movementDirection;
+                if (speedInDirection < this.speed) {
+                    const acceleration = Math.min(
+                        this.groundAcceleration * deltaTime,
+                        this.speed - speedInDirection
+                    );
+                    this.vx += movementDirection * acceleration;
+                }
+            } else {
+                const targetSpeed = this.vy > 0 ? this.airSpeed : this.speed;
 
-            // Preserve higher momentum in the chosen direction; otherwise switch to target speed immediately.
-            if (this.vx * movementDirection < targetSpeed) {
-                this.vx = movementDirection * targetSpeed;
+                // Preserve higher momentum in the chosen direction; otherwise switch to target speed immediately.
+                if (this.vx * movementDirection < targetSpeed) {
+                    this.vx = movementDirection * targetSpeed;
+                }
             }
         }
 
