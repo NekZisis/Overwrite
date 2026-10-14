@@ -1,16 +1,10 @@
 const settings = document.getElementById('settings-menu');
-const duckBtn = document.getElementById('duck-btn');
-const duckBackground = document.getElementById('duck-background');
 let settingFlag = false;
 
 window.addEventListener('keydown', (e)=> {
     if (e.key === 'Escape') {
         openSettings();
     }
-});
-
-duckBtn.addEventListener('click', () => {
-    duckBackground.hidden = !duckBackground.hidden;
 });
 
 export function openSettings() {
@@ -25,3 +19,4 @@ export function openSettings() {
 
     window.dispatchEvent(pauseEvent);
 }
+

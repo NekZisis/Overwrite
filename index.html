@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Platformer</title>
+  <link rel="stylesheet" href="styles/general-styles.css">
   <link rel="stylesheet" href="styles/game-styles.css">
   <link rel="stylesheet" href="styles/settings-styles.css">
 </head>
@@ -16,10 +17,12 @@
         <canvas id="gameCanvas"></canvas>
     </div>
     <div id="settings-menu">
-        <button id="duck-btn"> duck </button>
+        <button id="controls-btn" class="settings-btn"> Controls </button>
+        <button id="duck-btn" class="settings-btn"> duck </button>
     </div>
 
     <script type="module" src="scripts/main.js"></script>
     <script type="module" src="scripts/settings-main.js"></script>
+    <script type="module" src="scripts/duck.js"></script>
 </body>
 </html> 

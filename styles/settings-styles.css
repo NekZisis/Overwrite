@@ -9,4 +9,19 @@
     display: none;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+}
+
+.settings-btn {
+    width: 8rem;
+    height: 2rem;
+
+    margin: 1rem;
+
+    font-size: 1.5rem;
+    border-radius: 1rem; 
+
+    background-color: rgba(255, 255, 255, 0.483);
+
+    cursor: pointer;
 }
