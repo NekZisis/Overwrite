@@ -27,10 +27,10 @@ window.addEventListener('resize', () => {
     game.resize(window.innerWidth, window.innerHeight);
 });
 
-const fixedTimeStep = 1 / 60;
 const maxFrameTime = 0.1;
-let accumulator = 0;
 let lastTime = null;
+let fpsFrameCount = 0;
+let fpsWindowStart = null;
 
 // States that affect game activity
 let windowFocused = document.hasFocus();
@@ -45,7 +45,6 @@ function updateGameActivity() {
     if (active === gameActive) return;
 
     gameActive = active;
-    accumulator = 0;
     lastTime = null;
 
     if (!gameActive) {
@@ -83,13 +82,20 @@ function gameLoop(timeStamp) {
     lastTime = timeStamp;
 
     if (gameActive) {
-        accumulator += elapsed;
-        while (accumulator >= fixedTimeStep) {
-            game.update(fixedTimeStep);
-            accumulator -= fixedTimeStep;
+        game.update(elapsed);
+
+        if (fpsWindowStart === null) fpsWindowStart = timeStamp;
+        fpsFrameCount++;
+
+        const fpsWindowDuration = timeStamp - fpsWindowStart;
+        if (fpsWindowDuration >= 1000) {
+            console.log(`FPS: ${Math.round(fpsFrameCount * 1000 / fpsWindowDuration)}`);
+            fpsFrameCount = 0;
+            fpsWindowStart = timeStamp;
         }
     } else {
-        accumulator = 0;
+        fpsFrameCount = 0;
+        fpsWindowStart = null;
     }
 
     game.renderBackground(bgCTX);

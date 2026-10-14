@@ -20,7 +20,7 @@ export class Game {
         this.zoom = 1.9; // ACTUAL VALUE
         // this.zoom = 0.5; // DEVELOPMENT VALUE
 
-        this.lerp = 0.08;
+        this.lerp = 0.07;
         this.cameraPadding = 100;
 
         const cameraTarget = this.getCameraTarget();
@@ -87,12 +87,13 @@ export class Game {
         this.player.update(deltaTime, this.input);
 
         const { minX, maxX, minY, maxY, targetX, targetY } = this.getCameraTarget();
+        const cameraFollowFactor = 1 - Math.pow(1 - this.lerp, deltaTime * 60);
 
         // apply smooth following (lerp)
         this.camera.x = Math.max(minX, Math.min(maxX,
-            this.camera.x + (targetX - this.camera.x) * this.lerp));
+            this.camera.x + (targetX - this.camera.x) * cameraFollowFactor));
         this.camera.y = Math.max(minY, Math.min(maxY,
-            this.camera.y + (targetY - this.camera.y) * this.lerp));
+            this.camera.y + (targetY - this.camera.y) * cameraFollowFactor));
     }
 
     render(ctx) {

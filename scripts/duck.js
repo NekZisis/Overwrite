@@ -4,7 +4,10 @@ const quackSound = new Audio('./sounds/duck-quack.mp3');
 
 duckBtn.addEventListener('click', () => {
     duckBackground.hidden = !duckBackground.hidden;
+
     quackSound.pause();
     quackSound.currentTime = 0;
-    quackSound.play();
+    quackSound.play().catch(error => {
+        console.error("Audio playback error:", error);
+    });
 });

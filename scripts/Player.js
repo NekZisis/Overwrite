@@ -24,7 +24,7 @@ export class Player {
         this.jumpForce = -500;   // upward jump speed (px/s)
         this.downForce = 350;   //  downward movement speed (px/s)
         this.gravity = 1600;     // acceleration due to gravity (px/s^2)
-        this.maxFallSpeed = 800; // matches camera follow at 100px lag, 0.08 lerp, and 60 updates/s
+        this.maxFallSpeed = 800;
         this.dashSpeed = 600;   // dashing speed (px/s for 0.2s)
 
         // state variables
@@ -40,7 +40,7 @@ export class Player {
         this.wallLatched = null;
 
         // coyote time settings
-        this.coyoteTime = 0.05 // 50 ms
+        this.coyoteTime = 0.05; // 50 ms
         this.coyoteTimer = 0;
     }
 
@@ -172,6 +172,8 @@ export class Player {
                 this.toggleGravity = false;
                 this.vy = 0;
                 this.isOnGround = true;
+            } else if (wallType === 'stone') {
+
             }
 
 
