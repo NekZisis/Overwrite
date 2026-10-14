@@ -3,17 +3,17 @@ import { Background } from './Background.js';
 import { InputHandler } from './InputHandler.js';
 
 export class Game {
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
-        this.viewportWidth = width;
-        this.viewportHeight = height;
+    constructor(worldWidth, worldHeight, viewportWidth, viewportHeight) {
+        this.width = worldWidth;
+        this.height = worldHeight;
+        this.viewportWidth = viewportWidth;
+        this.viewportHeight = viewportHeight;
         this.input = new InputHandler();
 
         // Add camera object starting at 0,0
         this.camera = { x: 0, y: 0 };
 
-        this.objects = this.createObjects(width, height);
+        this.objects = this.createObjects(worldWidth, worldHeight);
         this.player = new Player(this.width, this.height, this.objects);
         this.background = new Background(this.width, this.height, this.objects);
 
@@ -101,23 +101,14 @@ export class Game {
         ctx.restore();
     }
 
-    // rendering background only happens once
-
     renderBackground(ctx) {
-        // clear background canvas in screen space
         ctx.clearRect(0, 0, this.width, this.height);
-
-        ctx.save();
-
-        ctx.scale(
-            this.zoom * this.width / this.viewportWidth,
-            this.zoom * this.height / this.viewportHeight
+        this.background.drawViewport(
+            ctx,
+            Math.floor(this.camera.x),
+            Math.floor(this.camera.y),
+            this.viewportWidth / this.zoom,
+            this.viewportHeight / this.zoom
         );
-        // shift background by negative camera coordinates
-        ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
-        // render the static background 
-        this.background.draw(ctx);
-
-        ctx.restore();
     }
 }

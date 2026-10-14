@@ -3,18 +3,39 @@ export class Background {
         this.bgWidth = bgWidth;
         this.bgHeight = bgHeight;
         this.objects = objects;
-    }
 
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = bgWidth;
+        this.canvas.height = bgHeight;
+
+        const ctx = this.canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Unable to create the background cache canvas context.');
+        }
+        this.draw(ctx);
+    }
 
     draw(ctx) {
         ctx.fillStyle = '#414141';
 
         this.objects.forEach((platform) => {
             ctx.fillRect(platform[0], platform[1], platform[2], platform[3]);
-        })
-
+        });
     }
 
+    drawViewport(ctx, x, y, width, height) {
+        ctx.drawImage(
+            this.canvas,
+            x,
+            y,
+            width,
+            height,
+            0,
+            0,
+            ctx.canvas.width,
+            ctx.canvas.height
+        );
+    }
 }
 
         // [x, y, width, height]

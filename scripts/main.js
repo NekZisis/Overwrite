@@ -1,36 +1,46 @@
 import { Game } from './game.js';
 
-const canvasWidth = 1920;
-const canvasHeight = 1080;
+// Fixed world size. Will be changed depending how big I'm planning to make each world. 
+const worldWidth = 1920;
+const worldHeight = 1080;
 
-// static/background (bg) canvas
+// NOTICE: The background stays static. Only the viewport changes during gameplay.
+
+// Background (#bgCanvas) canvas. ITS STATIC.
 const bgCanvas = document.getElementById('bgCanvas');
 const bgCTX = bgCanvas.getContext('2d');
-bgCanvas.width = canvasWidth;
-bgCanvas.height = canvasHeight;
+bgCanvas.width = worldWidth;
+bgCanvas.height = worldHeight;
 
-// dynamic canvas
+// Dynamic canvas (#gameCanvas). IT CHANGES WITH EVERY FRAME.
 const gameCanvas = document.getElementById('gameCanvas');
 const gameCTX = gameCanvas.getContext('2d');
-gameCanvas.width = canvasWidth;
-gameCanvas.height = canvasHeight;
+gameCanvas.width = worldWidth;
+gameCanvas.height = worldHeight;
 
-const game = new Game(canvasWidth, canvasHeight);
+// Start the game
+const game = new Game(worldWidth, worldHeight, window.innerWidth, window.innerHeight);
 
+// Resizing the window also resizes the user's viewport. 
+// Notice: Larger screens get more viewport.
 window.addEventListener('resize', () => {
     game.resize(window.innerWidth, window.innerHeight);
 });
-game.resize(window.innerWidth, window.innerHeight);
 
 const fixedTimeStep = 1 / 60;
 const maxFrameTime = 0.1;
 let accumulator = 0;
 let lastTime = null;
+
+// States that affect game activity
 let windowFocused = document.hasFocus();
-let gameActive = windowFocused && document.visibilityState === 'visible';
+let isSettingsOpen = false; 
+// Game is only active if focused, visible, and settings are closed
+let gameActive = windowFocused && (document.visibilityState === 'visible') && !isSettingsOpen;
 
 function updateGameActivity() {
-    const active = windowFocused && document.visibilityState === 'visible';
+    // re-evaluating states
+    const active = windowFocused && document.visibilityState === 'visible' && !isSettingsOpen;
 
     if (active === gameActive) return;
 
@@ -43,6 +53,7 @@ function updateGameActivity() {
     }
 }
 
+// Window focus/blur listeners
 window.addEventListener('blur', () => {
     windowFocused = false;
     updateGameActivity();
@@ -54,6 +65,17 @@ window.addEventListener('focus', () => {
 });
 
 document.addEventListener('visibilitychange', updateGameActivity);
+
+// Custom Event Listeners for Settings
+window.addEventListener('game:pause', () => {
+    isSettingsOpen = true;
+    updateGameActivity();
+});
+
+window.addEventListener('game:resume', () => {
+    isSettingsOpen = false;
+    updateGameActivity();
+});
 
 function gameLoop(timeStamp) {
     if (lastTime === null) lastTime = timeStamp;
