@@ -21,6 +21,10 @@ export class Game {
         // this.zoom = 0.5; // PROTOTYPING VALUE
         this.lerp = 0.08;
         this.cameraPadding = 100;
+
+        const cameraTarget = this.getCameraTarget();
+        this.camera.x = cameraTarget.targetX;
+        this.camera.y = cameraTarget.targetY;
     }
 
     createObjects(width, height) {
@@ -60,13 +64,11 @@ export class Game {
         this.viewportHeight = height;
     }
 
-    update(deltaTime) {
-        this.player.update(deltaTime, this.input);
-
+    getCameraTarget() {
         const viewWidth = this.viewportWidth / this.zoom;
         const viewHeight = this.viewportHeight / this.zoom;
         const padding = this.cameraPadding;
-        const horizontalOverflow = viewWidth > this.width + padding * 2;
+        const horizontalOverflow = viewWidth > (this.width + padding * 2);
         const verticalOverflow = viewHeight > this.height + padding * 2;
         const minX = horizontalOverflow ? (this.width - viewWidth) / 2 : -padding;
         const maxX = horizontalOverflow ? minX : this.width - viewWidth + padding;
@@ -77,6 +79,14 @@ export class Game {
         const targetY = Math.max(minY, Math.min(maxY,
             this.player.y + (this.player.height / 2) - (viewHeight / 2)));
 
+        return { minX, maxX, minY, maxY, targetX, targetY };
+    }
+
+    update(deltaTime) {
+        this.player.update(deltaTime, this.input);
+
+        const { minX, maxX, minY, maxY, targetX, targetY } = this.getCameraTarget();
+
         // apply smooth following (lerp)
         this.camera.x = Math.max(minX, Math.min(maxX,
             this.camera.x + (targetX - this.camera.x) * this.lerp));
@@ -85,6 +95,7 @@ export class Game {
     }
 
     render(ctx) {
+
         // clear dynamic canvas
         ctx.clearRect(0, 0, this.width, this.height);
 

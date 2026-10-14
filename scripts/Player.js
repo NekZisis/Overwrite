@@ -10,7 +10,7 @@ export class Player {
 
         // spawn position (bottom-center for now)
         this.x = this.gameWidth / 2 - this.width / 2;
-        this.y = this.gameHeight - this.height - 40;
+        this.y = this.gameHeight - this.height - 20;
 
         // velocity vectors (px/s)
         this.vx = 0;
