@@ -18,9 +18,9 @@ export class Player {
 
         // velocity value constants (px/s)
         this.speed = 300;        // horizontal movement speed when on ground (px/s)
-        this.groundAcceleration = 1800; // horizontal movement acceleration when on ground (px/s^2)
+        this.groundAcceleration = 2000; // horizontal movement acceleration when on ground (px/s^2)
         this.airSpeed = 150;    // horizontal movement speed when on air
-        this.groundDeceleration = 60000; // horizontal stopping acceleration (px/s^2)
+        this.groundDeceleration = 1800; // horizontal stopping acceleration (px/s^2)
         this.airDeceleration = 1000; // horizontal stopping acceleration while airborne without input (px/s^2)
         this.jumpForce = -500;   // upward jump speed (px/s)
         this.downForce = 350;   //  downward movement speed (px/s)
@@ -73,6 +73,7 @@ export class Player {
         // horizontal movement
         const leftPressed = input.isPressed('KeyA');
         const rightPressed = input.isPressed('KeyD');
+        const turnAcceleration = this.groundAcceleration * 4;
         let movementDirection = 0;
 
         if (!this.dashing && leftPressed && !rightPressed) {
@@ -101,19 +102,26 @@ export class Player {
 
         if (movementDirection !== 0) {
             if (this.isOnGround) {
-                const speedInDirection = this.vx * movementDirection;
-                if (speedInDirection < this.speed) {
-                    const acceleration = Math.min(
-                        this.groundAcceleration * deltaTime,
-                        this.speed - speedInDirection
-                    );
-                    this.vx += movementDirection * acceleration;
-                }
+                const targetSpeed = movementDirection * this.speed;
+                const speedDifference = targetSpeed - this.vx;
+                const acceleration = this.vx * movementDirection < 0
+                    ? turnAcceleration
+                    : this.groundAcceleration;
+                this.vx += Math.sign(speedDifference) * Math.min(
+                    Math.abs(speedDifference),
+                    acceleration * deltaTime
+                );
             } else {
                 const targetSpeed = this.vy > 0 ? this.airSpeed : this.speed;
 
-                // Preserve higher momentum in the chosen direction; otherwise switch to target speed immediately.
-                if (this.vx * movementDirection < targetSpeed) {
+                if (this.vx * movementDirection < 0) {
+                    const speedDifference = movementDirection * targetSpeed - this.vx;
+                    this.vx += Math.sign(speedDifference) * Math.min(
+                        Math.abs(speedDifference),
+                        turnAcceleration * deltaTime
+                    );
+                } else if (this.vx * movementDirection < targetSpeed) {
+                    // Preserve higher momentum in the chosen direction.
                     this.vx = movementDirection * targetSpeed;
                 }
             }
@@ -262,8 +270,12 @@ export class Player {
         }
 
         if (!this.dashing && this.isOnGround && (!wasOnGround || dashEnded)) {
-            const deceleration = this.groundDeceleration * deltaTime;
-            this.vx = Math.sign(this.vx) * Math.max(0, Math.abs(this.vx) - deceleration);
+            if (!wasOnGround) {
+                this.vx = Math.sign(this.vx) * Math.min(Math.abs(this.vx), this.speed);
+            } else {
+                const deceleration = this.groundDeceleration * deltaTime;
+                this.vx = Math.sign(this.vx) * Math.max(0, Math.abs(this.vx) - deceleration);
+            }
         }
 
         // Dash 
@@ -280,7 +292,6 @@ export class Player {
                 this.vx = this.dashSpeed * this.dashDirection;
             });
         }
-
     }
 
     checkForCollision(x, y) {
@@ -305,6 +316,7 @@ export class Player {
 
     // draw player model at current position (white rectangle for now)
     draw(ctx) {
+        // Draw player model
         ctx.fillStyle = 'white';
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
