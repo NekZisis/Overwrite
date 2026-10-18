@@ -13,15 +13,26 @@
 }
 
 .settings-btn {
-    width: 8rem;
-    height: 2rem;
+    width: 25dvw;
+    height: 3dvh;
 
     margin: 1rem;
 
     font-size: 1.5rem;
     border-radius: 1rem; 
 
-    background-color: rgba(255, 255, 255, 0.483);
+    background-color: rgba(255, 255, 255, 0.645);
 
     cursor: pointer;
+    font-family: monospace;
+
+    border: solid rgba(255, 255, 255, 0.08);
+    /* box-shadow: 0px 0px 10rem rgba(255, 255, 255, 0.318); */
+    color: black;
+} 
+#exit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
 }

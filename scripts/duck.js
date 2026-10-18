@@ -9,7 +9,7 @@ duckBtn.addEventListener('click', () => {
     duckBackground.hidden = !duckBackground.hidden;
 
     if (fpsText.innerHTML === 'FPS') {
-        fpsText.innerHTML = 'ducks per second';
+        fpsText.innerHTML = 'server quacks per second';
         fpsText.style.color = 'black';
         fpsDisplay.style.color = 'black';
     } else {
