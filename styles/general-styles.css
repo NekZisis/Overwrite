@@ -12,3 +12,13 @@ body {
 
     user-select: none;
 }
+
+#fps-container {
+    color: white;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 5;
+    margin: 1rem;
+    font-size: 1.3rem;
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Platformer</title>
+  <title>Overwrite Development</title>
   <link rel="stylesheet" href="styles/general-styles.css">
   <link rel="stylesheet" href="styles/game-styles.css">
   <link rel="stylesheet" href="styles/settings-styles.css">
@@ -11,9 +11,10 @@
 <body>
     <div id="mobile-blocker">This game requires a desktop</div>
 
+    <div id="fps-container"><span id="fps-display">0</span> <span id="fps-text">FPS</span></div>
     <div id="game-container">
         <img id="duck-background" src="images.jfif" alt="" aria-hidden="true" hidden>
-        <canvas id="bgCanvas"></canvas>
+        <canvas id="backgroundCanvas"></canvas>
         <canvas id="gameCanvas"></canvas>
     </div>
     <div id="settings-menu">
@@ -22,7 +23,7 @@
     </div>
 
     <script type="module" src="scripts/main.js"></script>
-    <script type="module" src="scripts/settings-main.js"></script>
+    <script type="module" src="scripts/settings.js"></script>
     <script type="module" src="scripts/duck.js"></script>
 </body>
 </html> 

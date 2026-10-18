@@ -1,6 +1,8 @@
 import { Player } from './Player.js';
 import { Background } from './Background.js';
 import { InputHandler } from './InputHandler.js';
+import { createObjects } from './DATA/OBJECTS.js';
+import { GAME_SETTINGS } from './DATA/GAME_SETTINGS.js';
 
 export class Game {
     constructor(worldWidth, worldHeight, viewportWidth, viewportHeight) {
@@ -13,51 +15,25 @@ export class Game {
         // Add camera object starting at 0,0
         this.camera = { x: 0, y: 0 };
 
-        this.objects = this.createObjects(worldWidth, worldHeight);
+        this.objects = createObjects(worldWidth, worldHeight);
         this.player = new Player(this.width, this.height, this.objects);
-        this.background = new Background(this.width, this.height, this.objects);
+        this.backgroundRenderer = new Background(this.width, this.height, this.objects);
 
-        this.zoom = 1.9; // ACTUAL VALUE
-        // this.zoom = 0.5; // DEVELOPMENT VALUE
+        this.zoom = GAME_SETTINGS.camera.zoom; 
+        if (GAME_SETTINGS.camera.developer) {
+            this.zoom = GAME_SETTINGS.camera.developer_zoom;
+        }
+        this.zoom = GAME_SETTINGS.camera.developer ? 
+            GAME_SETTINGS.camera.developer_zoom : 
+            GAME_SETTINGS.camera.zoom;
 
-        this.lerp = 0.07;
-        this.cameraPadding = 100;
+
+        this.lerp = GAME_SETTINGS.camera.lerp;
+        this.cameraPadding = GAME_SETTINGS.camera.padding;
 
         const cameraTarget = this.getCameraTarget();
         this.camera.x = cameraTarget.targetX;
         this.camera.y = cameraTarget.targetY;
-    }
-
-    createObjects(width, height) {
-        const center = width / 2;
-        return [
-            [0, 0, 20, height, 'stone'], 
-            [width - 20, 0, 20, height, 'stone'], 
-            [0, height - 20, width, 20, 'stone'],
-            [0, 0, width, 20, 'stone'],
-            [center - 325, 750, 650, 20, 'stone'],
-            [center - 285, 180, 35, 500, 'vines'],
-            [center + 250, 180, 35, 500, 'vines'],
-            [center - 475, 100, 50, 900, 'vines'],
-            [center + 425, 100, 50, 900, 'vines'],
-            [center + 50, 100, 100, 20, 'stone'],
-            [center - 150, 204, 100, 20, 'stone'],
-            [center + 50, 308, 100, 20, 'stone'],
-            [center - 150, 412, 100, 20, 'stone'],
-            [center + 50, 516, 100, 20, 'stone'],
-            [center - 150, 620, 100, 20, 'stone'],
-            [center - 325, height - 200, 100, 20, 'stone'],
-            [center + 225, height - 200, 100, 20, 'stone'],
-            [200, height - 100, 150, 20, 'stone'], 
-            [50, 500, 100, 20, 'stone'],
-            [50, height - 190, 100, 20, 'stone'],
-            [230, height - 450, 10, 220, 'vines'],
-            [230, height - 450, 65, 20, 'stone'], 
-            [100, 100, 20, 300, 'vines'],
-            [250, 250, 20, 250, 'vines'], 
-            [375, 320, 20, 250, 'vines'], 
-            [center - 755, 100, 280, 20, 'stone']
-        ];
     }
 
     resize(width, height) {
@@ -114,10 +90,10 @@ export class Game {
         ctx.restore();
     }
 
-    renderBackground(ctx) {
-        ctx.clearRect(0, 0, this.width, this.height);
-        this.background.drawViewport(
-            ctx,
+    renderBackgroundViewport(context) {
+        context.clearRect(0, 0, this.width, this.height);
+        this.backgroundRenderer.drawCameraViewport(
+            context,
             Math.floor(this.camera.x),
             Math.floor(this.camera.y),
             this.viewportWidth / this.zoom,
